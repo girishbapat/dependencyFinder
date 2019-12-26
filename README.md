@@ -18,7 +18,7 @@ From Maven build, run configuration, execute the below command<br>
 Open <code>sure-fire.html</code> file from <code>target -> site</code> folder in any browser.<br>
 <br>
 <li>What project contains?</li>
-This project contains services for finding dependencies for current project.<br>
+This project contains services for finding dependent tables for current table.<br>
 Testcases consuming the services with both positive and negative scenarios<br>
 <br><br>
 <strong>Note: I am using lombok library for auto-generating getters and setters etc.<br>You may get compilation errors.<br> To work on the same, either you include <a href="https://projectlombok.org/">Project Lombok</a> or generate getter setters</strong><br>

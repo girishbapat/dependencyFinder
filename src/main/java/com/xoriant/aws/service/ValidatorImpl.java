@@ -4,6 +4,7 @@
 package com.xoriant.aws.service;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,12 +76,7 @@ public class ValidatorImpl implements Validator {
 		final Map<String, Vertex> vertexMap = new HashMap<>();
 		final Graph graph = new Graph();
 		try {
-			for (final Dependency currentDependency : allDependencies) {
-				final Constructor<Vertex> constructorStr = Vertex.class.getConstructor(String.class);
-				final Vertex vertex = constructorStr.newInstance(currentDependency.getTableName());
-				graph.addVertex(vertex);
-				vertexMap.put(currentDependency.getTableName(), vertex);
-			}
+			this.createVertexInstanceWithReflection(allDependencies, vertexMap, graph);
 		} catch (final Exception e) {
 			validationErrors.add("Problem validating cyclic dependencies. Check for exception message");
 			validationErrors.add(e.getMessage());
@@ -98,6 +94,30 @@ public class ValidatorImpl implements Validator {
 		}
 		return isFatalError;
 
+	}
+
+	/**
+	 * Create instance of Vertex class using reflection
+	 *
+	 * @param allDependencies
+	 * @param vertexMap
+	 * @param graph
+	 * @throws NoSuchMethodException
+	 * @throws SecurityException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 * @throws InvocationTargetException
+	 */
+	private void createVertexInstanceWithReflection(final List<Dependency> allDependencies,
+			final Map<String, Vertex> vertexMap, final Graph graph) throws NoSuchMethodException, SecurityException,
+			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		for (final Dependency currentDependency : allDependencies) {
+			final Constructor<Vertex> constructorStr = Vertex.class.getConstructor(String.class);
+			final Vertex vertex = constructorStr.newInstance(currentDependency.getTableName());
+			graph.addVertex(vertex);
+			vertexMap.put(currentDependency.getTableName(), vertex);
+		}
 	}
 
 	@Override

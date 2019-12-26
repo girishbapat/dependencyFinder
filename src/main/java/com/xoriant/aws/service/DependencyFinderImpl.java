@@ -22,8 +22,6 @@ public class DependencyFinderImpl implements DependencyFinder {
 
 	private void findDependentTables(final String nameOfTable, final Queue<String> queue,
 			final List<Dependency> allDependencies) {
-		// final Dependency dependenciesOfCurrentTable =
-		// this.dependencyRepository.findByTableName(nameOfTable);
 		final Dependency dependenciesOfCurrentTable = allDependencies.stream()
 				.filter(currentDependency -> nameOfTable.equals(currentDependency.getTableName())).findFirst()
 				.orElse(null);

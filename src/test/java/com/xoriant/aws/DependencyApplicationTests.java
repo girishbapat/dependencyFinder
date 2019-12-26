@@ -1,5 +1,6 @@
 package com.xoriant.aws;
 
+import java.util.List;
 import java.util.Queue;
 
 import org.junit.Assert;
@@ -28,13 +29,57 @@ class DependencyApplicationTests {
 	private DependencyRepository dependencyRepository;
 
 	@Test
-	public void positiveFindDependencyAndPrintOutput() {
+	/**
+	 * Positive test case for finding dependency for given table.
+	 */
+	public void positiveFindDependency() {
 		final Queue<String> resolveDependency = this.dependencyFinder.findDependencies("t1");
 		System.out.println("queue listing");
 		System.out.println("=====================================");
 		resolveDependency.forEach(System.out::println);
 		System.out.println("=====================================");
 		Assert.assertNotNull(resolveDependency);
+	}
+
+	/**
+	 * Positive test case by sending whether to validate before finding dependency
+	 */
+	@Test
+	public void positiveFindDependencyWithWhetherToValidate() {
+		final Queue<String> resolveDependency = this.dependencyFinder.findDependencies("t1", true);
+		System.out.println("queue listing");
+		System.out.println("=====================================");
+		resolveDependency.forEach(System.out::println);
+		System.out.println("=====================================");
+		Assert.assertNotNull(resolveDependency);
+	}
+
+	/**
+	 * Positive test case just check if the current table can be successfully
+	 * transfered or any validation errors present.
+	 */
+	@Test
+	public void positiveJustValidateCheckIfCurrentTableCanBeSuccessfullyProcessed() {
+		final List<String> validationErrors = this.dependencyFinder.validate("t1");
+		Assert.assertEquals("No validation errors!", Boolean.TRUE, validationErrors.size() == 0);
+	}
+
+	/**
+	 * Positive test case just check if the current table can be successfully
+	 * transfered or any validation errors present.
+	 */
+	@Test
+	public void positiveValidateAndSeeError() {
+		final Dependency t2 = this.dependencyRepository.findByTableName("t2");
+		t2.setDataAvailable(0);
+		this.dependencyRepository.save(t2);
+		final List<String> validationErrors = this.dependencyFinder.validate("t2");
+		System.out.println("=====================================");
+		validationErrors.forEach(System.out::println);
+		System.out.println("=====================================");
+		Assert.assertEquals("Got validation errors!", Boolean.TRUE, validationErrors.size() > 0);
+		t2.setDataAvailable(1);
+		this.dependencyRepository.save(t2);
 	}
 
 	@Test

@@ -88,7 +88,7 @@ class DependencyApplicationTests {
 			this.dependencyFinder.findDependencies("  ");
 		});
 
-		final String expectedMessage = "Invalid input. Name of table cannot be null or empty.";
+		final String expectedMessage = "FATAL ERROR. Invalid input. Name of table cannot be null or empty.";
 		final String actualMessage = exception.getMessage();
 		System.out.println("=====================================");
 		System.out.println(actualMessage);
@@ -105,8 +105,9 @@ class DependencyApplicationTests {
 			this.dependencyFinder.findDependencies(nonExitantTableName);
 		});
 
-		final String expectedMessage = String
-				.format("Invalid input. Table with name: %s does not exists in current schema.", nonExitantTableName);
+		final String expectedMessage = String.format(
+				"FATAL ERROR. Invalid input. Table with name: %s does not exist in current schema.",
+				nonExitantTableName);
 		final String actualMessage = exception.getMessage();
 		System.out.println("=====================================");
 		System.out.println(actualMessage);

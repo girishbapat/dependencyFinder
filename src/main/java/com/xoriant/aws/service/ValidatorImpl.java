@@ -36,7 +36,7 @@ public class ValidatorImpl implements Validator {
 	private boolean validateTableName(final String nameOfTable, final List<String> validationErrors) {
 		boolean isFatalError = false;
 		if (StringUtils.isBlank(nameOfTable)) {
-			validationErrors.add("Invalid input. Name of table cannot be null or empty.");
+			validationErrors.add("FATAL ERROR. Invalid input. Name of table cannot be null or empty.");
 			isFatalError = true;
 		}
 		return isFatalError;
@@ -47,8 +47,8 @@ public class ValidatorImpl implements Validator {
 		boolean isFatalError = false;
 		if (!allDependencies.stream()
 				.anyMatch(currentDependency -> StringUtils.equals(currentDependency.getTableName(), nameOfTable))) {
-			final String invalidInput = String
-					.format("Invalid input. Table with name: %s does not exists in current schema.", nameOfTable);
+			final String invalidInput = String.format(
+					"FATAL ERROR. Invalid input. Table with name: %s does not exist in current schema.", nameOfTable);
 			validationErrors.add(invalidInput);
 			isFatalError = true;
 		}
@@ -61,7 +61,7 @@ public class ValidatorImpl implements Validator {
 
 		for (final Dependency currentDependency : allDependencies) {
 			if (currentDependency.getDataAvailable() == 0) {
-				final String noIncrementaldatAvailable = String.format("No incremental data available for table: %s",
+				final String noIncrementaldatAvailable = String.format("No incremental data available for table: %s.",
 						currentDependency.getTableName());
 				validationErrors.add(noIncrementaldatAvailable);
 			}
@@ -78,7 +78,8 @@ public class ValidatorImpl implements Validator {
 		try {
 			this.createVertexInstanceWithReflection(allDependencies, vertexMap, graph);
 		} catch (final Exception e) {
-			validationErrors.add("Problem validating cyclic dependencies. Check for exception message");
+			validationErrors.add(
+					"FATAL ERROR. Problem validating cyclic dependencies. Check for exception in subsequent message.");
 			validationErrors.add(e.getMessage());
 			return true;
 		}
@@ -90,7 +91,7 @@ public class ValidatorImpl implements Validator {
 		}
 		isFatalError = graph.hasCycle();
 		if (isFatalError) {
-			validationErrors.add("Cyclic dependency found");
+			validationErrors.add("FATAL ERROR. Cyclic dependency found.");
 		}
 		return isFatalError;
 

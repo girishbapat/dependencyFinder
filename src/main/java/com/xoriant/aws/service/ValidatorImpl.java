@@ -89,9 +89,11 @@ public class ValidatorImpl implements Validator {
 				graph.addEdge(vertexMap.get(dependency.getTableName()), vertexMap.get(currentDependency));
 			}
 		}
-		isFatalError = graph.hasCycle();
-		if (isFatalError) {
-			validationErrors.add("FATAL ERROR. Cyclic dependency found.");
+		try {
+			isFatalError = graph.hasCycle();
+		} catch (final Exception e) {
+			validationErrors.add(e.getMessage());
+			return true;
 		}
 		return isFatalError;
 
@@ -112,7 +114,7 @@ public class ValidatorImpl implements Validator {
 	 */
 	private void createVertexInstanceWithReflection(final List<Dependency> allDependencies,
 			final Map<String, Vertex> vertexMap, final Graph graph) throws NoSuchMethodException, SecurityException,
-			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		for (final Dependency currentDependency : allDependencies) {
 			final Constructor<Vertex> constructorStr = Vertex.class.getConstructor(String.class);
 			final Vertex vertex = constructorStr.newInstance(currentDependency.getTableName());

@@ -1,5 +1,6 @@
 package com.xoriant.aws.service;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -21,21 +22,29 @@ public class DependencyFinderImpl implements DependencyFinder {
 	Validator validator;
 
 	private void findDependentTables(final String nameOfTable, final Queue<String> queue,
-			final List<Dependency> allDependencies) {
+			final List<Dependency> allDependencies, List<String> tableNamesWithAlreadyVerifiedDependencies) {
 		final Dependency dependenciesOfCurrentTable = allDependencies.stream()
 				.filter(currentDependency -> nameOfTable.equals(currentDependency.getTableName())).findFirst()
 				.orElse(null);
 		final List<String> commaSeperatedDependencies = dependenciesOfCurrentTable.getDependencyList();
 		if (!CollectionUtils.isEmpty(commaSeperatedDependencies)) {
 			for (final String currentDependentTable : commaSeperatedDependencies) {
-				this.findDependentTables(currentDependentTable, queue, allDependencies);
+				if(StringUtils.isNotEmpty(currentDependentTable)&&!tableNamesWithAlreadyVerifiedDependencies.contains(currentDependentTable)) {
+					this.findDependentTables(currentDependentTable, queue, allDependencies, tableNamesWithAlreadyVerifiedDependencies);
+				}
 			}
 			if (!queue.contains(nameOfTable)) {
 				queue.add(nameOfTable);
+			}
+			if(!tableNamesWithAlreadyVerifiedDependencies.contains(nameOfTable)) {
+				tableNamesWithAlreadyVerifiedDependencies.add(nameOfTable);
 			}
 		} else {
 			if (!queue.contains(nameOfTable)) {
 				queue.add(nameOfTable);
+			}
+			if(!tableNamesWithAlreadyVerifiedDependencies.contains(nameOfTable)) {
+				tableNamesWithAlreadyVerifiedDependencies.add(nameOfTable);
 			}
 			return;
 		}
@@ -51,7 +60,8 @@ public class DependencyFinderImpl implements DependencyFinder {
 			throw new RuntimeException(strValidationErrors);
 		}
 		final List<Dependency> allDependencies = this.dependencyRepository.findAll();
-		this.findDependentTables(nameOfTable, queue, allDependencies);
+		final List<String> tableNamesWithAlreadyVerifiedDependencies=new ArrayList<>();
+		this.findDependentTables(nameOfTable, queue, allDependencies, tableNamesWithAlreadyVerifiedDependencies);
 		return queue;
 	}
 
@@ -70,7 +80,8 @@ public class DependencyFinderImpl implements DependencyFinder {
 		if (needPriorValidations) {
 			queue = this.findDependencies(nameOfTable);
 		} else {
-			this.findDependentTables(nameOfTable, queue, allDependencies);
+			final List<String> tableNamesWithAlreadyVerifiedDependencies=new ArrayList<>();
+			this.findDependentTables(nameOfTable, queue, allDependencies, tableNamesWithAlreadyVerifiedDependencies);
 		}
 		return queue;
 	}

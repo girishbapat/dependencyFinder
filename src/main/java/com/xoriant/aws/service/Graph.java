@@ -41,9 +41,12 @@ public class Graph {
 		for (final Vertex neighbour : sourceVertex.getAdjacencyList()) {
 			if (neighbour.isBeingVisited()) {
 				// backward edge exists
-				return true;
+				System.out.println("FATAL ERROR. Cyclic dependency found for: "+sourceVertex.getLabel()+", due to:"+neighbour.getLabel());
+				throw new RuntimeException("FATAL ERROR. Cyclic dependency found for: "+sourceVertex.getLabel()+", due to:"+neighbour.getLabel());
+				//return true;
 			} else if (!neighbour.isVisited() && this.hasCycle(neighbour)) {
-				return true;
+				throw new RuntimeException("FATAL ERROR. Cyclic dependency found for: "+sourceVertex.getLabel()+", due to:"+neighbour.getLabel());
+				//return true;
 			}
 		}
 
